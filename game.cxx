@@ -38,9 +38,11 @@ class Projectile
             expired = true;
     }
 
-    void draw(SDL_Renderer *renderer, float camX, float camY)
+    void draw(SDL_Renderer *renderer, float camX, float camY, float aimAngle)
     {
+        float rad = (aimAngle - 145) * M_PI / 180.0f;
         SDL_FRect rect = {x - camX - 20, y - camY - 20, 40, 40};
+            SDL_RenderCopyExF(renderer, tex, NULL, &rect,aimAngle, NULL, SDL_FLIP_NONE);
         SDL_RenderCopyF(renderer, tex, NULL, &rect);
     }
 };
@@ -585,7 +587,7 @@ int main(int argc, char *argv[])
         for (auto &p : particles)
             p.draw(renderer, camX, camY);
         for (auto &pr : projectiles)
-            pr.draw(renderer, camX, camY);
+            pr.draw(renderer, camX, camY, aimJoy.angle);
         for (auto &z : zombies)
             z.draw(renderer, zombieFrames, camX, camY);
 
