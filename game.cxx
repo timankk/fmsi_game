@@ -38,9 +38,11 @@ class Projectile
             expired = true;
     }
 
-    void draw(SDL_Renderer *renderer, float camX, float camY)
+    void draw(SDL_Renderer *renderer, float camX, float camY, float aimAngle)
     {
+        float rad = (aimAngle - 145) * M_PI / 180.0f;
         SDL_FRect rect = {x - camX - 20, y - camY - 20, 40, 40};
+            SDL_RenderCopyExF(renderer, tex, NULL, &rect,aimAngle, NULL, SDL_FLIP_NONE);
         SDL_RenderCopyF(renderer, tex, NULL, &rect);
     }
 };
@@ -238,7 +240,7 @@ class Car
         {
             float maxRange = 600.0f;
             float currentRange = power * maxRange;
-            float rad = (aimAngle - 145) * M_PI / 180.0f;
+            float rad = (aimAngle - 90) * M_PI / 180.0f;
 
             // رسم السهم المتمطط
             SDL_FRect arrowRect = {x + w / 2 - camX - 25, y + h / 2 - camY - currentRange, 50, currentRange};
@@ -248,9 +250,16 @@ class Car
             // رسم دائرة الهدف (Reticle)
             float tx = (x + w / 2) + cos(rad) * currentRange;
             float ty = (y + h / 2) + sin(rad) * currentRange;
+
+            // رسم مربع الهدف الخارجي
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_Rect outerReticle = {(int)(tx - camX - 15), (int)(ty - camY - 15), 30, 30};
+            SDL_RenderDrawRect(renderer, &outerReticle);
+
+            // رسم مربع الهدف الداخلي
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 200);
-            SDL_Rect reticle = {(int)(tx - camX - 10), (int)(ty - camY - 10), 20, 20};
-            SDL_RenderDrawRect(renderer, &reticle); // دائرة بسيطة (مربع صغير للتوضيح)
+            SDL_Rect innerReticle = {(int)(tx - camX - 10), (int)(ty - camY - 10), 20, 20};
+            SDL_RenderFillRect(renderer, &innerReticle);
         }
     }
 };
@@ -585,7 +594,7 @@ int main(int argc, char *argv[])
         for (auto &p : particles)
             p.draw(renderer, camX, camY);
         for (auto &pr : projectiles)
-            pr.draw(renderer, camX, camY);
+            pr.draw(renderer, camX, camY, aimJoy.angle);
         for (auto &z : zombies)
             z.draw(renderer, zombieFrames, camX, camY);
 
